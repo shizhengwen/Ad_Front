@@ -73,10 +73,11 @@
 </template>
 
 <script>
-'use strict';
+"use strict";
 import axios from "axios";
 import BScroll from "better-scroll";
 import { Indicator } from "mint-ui";
+import { Toast } from "mint-ui";
 export default {
     name: "home",
     data() {
@@ -84,7 +85,9 @@ export default {
             count: 10,
             oneLi: {},
             twoLi: {},
-            listArrary: []
+            listArrary: [],
+            page: 1,
+            count: 20
         };
     },
     created() {
@@ -94,24 +97,27 @@ export default {
         getJoins() {
             var _vm = this;
             axios
-                .get("/information/all/").then(function(res){
-                    if( res.status == 200 ){
+                .get("/information/all/", {
+                    params: { page: _vm.page, count: _vm.count }
+                })
+                .then(function(res) {
+                    if (res.status == 200) {
                         var allList = res.data.date;
-                        setTimeout(function(){
+                        setTimeout(function() {
                             Indicator.close();
-                        },1000)
+                        }, 1000);
                         if (allList.length > 0) {
                             _vm.oneLi = allList[0];
                         }
                         if (allList.length > 1) {
                             _vm.twoLi = allList[1];
                         }
-                        if (allList.length > 3) {
+                        if (allList.length > 2) {
                             _vm.listArrary = allList.splice(2);
                         }
                     }
                 })
-                .catch(function(error){
+                .catch(function(error) {
                     console.log("数据请求失败" + error);
                 });
         },
@@ -124,7 +130,7 @@ export default {
                 click: true
             });
             //1.2监听列表滚动
-            this.listScroll.on("touchEnd",function(post){
+            this.listScroll.on("touchEnd", function(post) {
                 //1.2.1监听下拉
                 if (post.y > 50) {
                     Indicator.open("正在刷新...");
@@ -135,11 +141,42 @@ export default {
                 }
                 //1.2.2监听上拉
                 if (_vm.listScroll.maxScrollY > post.y + 20) {
-                    console.log("上拉加载");
+                    //console.log("上拉加载");
+                    Indicator.open("加载中...");
+                    _vm.page++;
+                    axios
+                        .get("/information/all/", {
+                            params: { page: _vm.page, count: _vm.count }
+                        })
+                        .then(function(res) {
+                            if (res.status == 200) {
+                                //console.log(1111);
+                                var addlis = res.data.date;
+                                if (addlis && addlis.length > 0) {
+                                    console.log(_vm.listArrary);
+                                    for (var i = 0; i < addlis.length; i++) {
+                                        _vm.listArrary.push(addlis[i]);
+                                    }
+                                    setTimeout(function() {
+                                        Indicator.close();
+                                    }, 500);
+                                } else {
+                                    Indicator.close();
+                                    Toast({
+                                        message: "没有更多数据",
+                                        position: "bottom",
+                                        duration: 3000
+                                    });
+                                }
+                            }
+                        });
+                    // .catch(function(error) {
+                    //     console.log("数据请求失败" + error);
+                    // });
                 }
             });
             //1.3列表结束滚动
-            this.listScroll.on("scrollEnd", function(){
+            this.listScroll.on("scrollEnd", function() {
                 _vm.listScroll.refresh();
             });
         }
