@@ -12,7 +12,7 @@ body{
     position: fixed;
     left: 0;
     top: 0;
-    z-index: 9999;
+    z-index: 99;
     height: px2rem(88);
     img{
         padding: px2rem(20);
@@ -132,6 +132,9 @@ body{
     h4{
         font-size: 14px;
         padding: 10px 0;
+        a{
+            color: #333;
+        }
     }
     .content{
         a{
@@ -160,7 +163,7 @@ body{
     position: fixed;
     left: 0;
     bottom: 0;
-    z-index: 9999;
+    z-index: 99;
     display: flex;
     justify-content: space-between;
     border-top: 1px solid #f8f8f8;

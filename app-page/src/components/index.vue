@@ -1,7 +1,7 @@
 <template>
     <div class="hello">
         <header class="mui-bar mui-bar-nav header-mod">
-            <img src="../../static/img/下载.png" />
+            <img src="../../static/img/logo.png" />
         </header>
         <div class="container">
             <div class="recommend-container">
@@ -10,89 +10,39 @@
                     <div class="list-one">
                         <div class="list-one-box">
                             <div class="left">
-                                <a href="#">男子借出租房为名持刀威胁杭州女房东，做出这种事儿</a>
-                                <p>趣头条</p>
+                                <a :href="oneLi.url" v-text="oneLi.title"></a>
+                                <p v-text="oneLi.source"></p>
                             </div>
-                            <a class="right" href="#"><img src="../../static/img/img2.png" /></a>
-                            <span class="line"></span>
-                        </div>
-                    </div>
-                    <div class="list-one">
-                        <div class="list-one-box">
-                            <div class="left">
-                                <a href="#">男子借出租房为名持刀威胁杭州女房东，做出这种事儿</a>
-                                <p>趣头条</p>
-                            </div>
-                            <a class="right" href="#"><img src="../../static/img/img2.png" /></a>
-                            <span class="line"></span>
-                        </div>
-                    </div>
-                    <div class="list-one">
-                        <div class="list-one-box">
-                            <div class="left">
-                                <a href="#">男子借出租房为名持刀威胁杭州女房东，做出这种事儿</a>
-                                <p>趣头条</p>
-                            </div>
-                            <a class="right" href="#"><img src="../../static/img/img2.png" /></a>
+                            <a class="right" :href="oneLi.url"><img :src="oneLi.head_img|imgurl(oneLi.head_img)" /></a>
                             <span class="line"></span>
                         </div>
                     </div>
                     <div class="list-two">
-                        <h4>快手短视频</h4>
+                        <h4>
+                            <a href="#" v-text="twoLi.title"></a>
+                        </h4>
                         <div class="content">
-                            <a href="#"><img src="../../static/img/img1.png" alt="" /></a>
+                            <a :href="twoLi.url"><img :src="twoLi.head_img|imgurl(twoLi.head_img)" alt="" /></a>
                         </div>
-                        <p>(广告)快手</p>
+                        <p v-text="twoLi.source"></p>
                     </div>
-                    <div class="list-three">
+
+                    <div class="list-three" v-for="(item,index) in listArrary" :key="index">
                         <h4>
-                            <a href="#">猛犬界中的南丐北帝</a>
+                            <a :href="item.url" v-text="item.title"></a>
                         </h4>
                         <div class="list-items">
                             <div class="item">
-                                <a href="#"><img src="../../static/img/img2.png" /></a>
+                                <a :href="item.url"><img :src="item.head_img|imgurl(item.head_img)" /></a>
                             </div>
                             <div class="item">
-                                <a href="#"><img src="../../static/img/img2.png" /></a>
+                                <a :href="item.url"><img :src="item.head_img2|imgurl(item.head_img2)" /></a>
                             </div>
                             <div class="item">
-                                <a href="#"><img src="../../static/img/img2.png" /></a>
+                                <a :href="item.url"><img :src="item.head_img3|imgurl(item.head_img3)" /></a>
                             </div>
                         </div>
-                    </div>
-                    <div class="list-three">
-                        <h4>
-                            <a href="#">猛犬界中的南丐北帝</a>
-                        </h4>
-                        <div class="list-items">
-                            <div class="item">
-                                <a href="#"><img src="../../static/img/img2.png" /></a>
-                            </div>
-                            <div class="item">
-                                <a href="#"><img src="../../static/img/img2.png" /></a>
-                            </div>
-                            <div class="item">
-                                <a href="#"><img src="../../static/img/img2.png" /></a>
-                            </div>
-                        </div>
-                        <p>点点趣闻</p>
-                    </div>
-                    <div class="list-three">
-                        <h4>
-                            <a href="#">猛犬界中的南丐北帝</a>
-                        </h4>
-                        <div class="list-items">
-                            <div class="item">
-                                <a href="#"><img src="../../static/img/img2.png" /></a>
-                            </div>
-                            <div class="item">
-                                <a href="#"><img src="../../static/img/img2.png" /></a>
-                            </div>
-                            <div class="item">
-                                <a href="#"><img src="../../static/img/img2.png" /></a>
-                            </div>
-                        </div>
-                        <p>点点趣闻</p>
+                        <p v-text="item.source"></p>
                     </div>
                 </div>
             </div>
@@ -123,25 +73,57 @@
 </template>
 
 <script>
+'use strict';
 import axios from "axios";
 import BScroll from "better-scroll";
-import { Indicator } from 'mint-ui';
+import { Indicator } from "mint-ui";
 export default {
-    name: "HelloWorld",
+    name: "home",
     data() {
         return {
-            count: 10
+            count: 10,
+            oneLi: {},
+            twoLi: {},
+            listArrary: []
         };
     },
-    mounted() {
-        this._initBScroll()
-        this.getJoins()
+    filters: {
+        imgurl(urls) {
+            if (urls) {
+                var newUrl = urls.substr(urls.indexOf("img/"));
+                newUrl = "http://47.52.157.58:8080/static/article/" + newUrl;
+                return newUrl;
+            } else {
+                return (urls = "../../static/img/toimg.png");
+            }
+        }
+    },
+    created() {
+        this.getJoins();
     },
     methods: {
         getJoins() {
-            axios.get("/information/all/").then(res => {
-                console.log(res);
-            });
+            axios
+                .get("/information/all/").then(res => {
+                    if( res.status == 200 ){
+                        var allList = res.data.date;
+                        setTimeout(()=>{
+                            Indicator.close();
+                        },1000)
+                        if (allList.length > 0) {
+                            this.oneLi = allList[0];
+                        }
+                        if (allList.length > 1) {
+                            this.twoLi = allList[1];
+                        }
+                        if (allList.length > 3) {
+                            this.listArrary = allList.splice(2);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.log("数据请求失败" + error);
+                });
         },
         _initBScroll() {
             //1.1初始化
@@ -154,7 +136,11 @@ export default {
             this.listScroll.on("touchEnd", post => {
                 //1.2.1监听下拉
                 if (post.y > 50) {
-                    console.log("下拉刷新");
+                    Indicator.open("正在刷新...");
+                    this.oneLi = {};
+                    this.twoLi = {};
+                    this.listArrary = [];
+                    this.getJoins();
                 }
                 //1.2.2监听上拉
                 if (this.listScroll.maxScrollY > post.y + 20) {
@@ -166,12 +152,15 @@ export default {
                 this.listScroll.refresh();
             });
         }
+    },
+    mounted() {
+        Indicator.open("加载中...");
+        this._initBScroll();
     }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
-@import '../../static/css/page.scss';
+@import "../../static/css/page.scss";
 </style>
 
