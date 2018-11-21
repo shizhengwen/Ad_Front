@@ -8,5 +8,25 @@
   <body>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+    <script>
+        'use strict';
+        function setPageStatusBarBackground(isIndex) {
+          if (window.plus) {
+            if (isIndex) {
+              plus.navigator.setStatusBarStyle("dark");
+              plus.navigator.setStatusBarBackground("#fff");
+            } else {
+              plus.navigator.setStatusBarStyle("dark");
+              plus.navigator.setStatusBarBackground("#fff");
+            }
+          }
+        }
+    
+        if (window.plus) {
+          setPageStatusBarBackground()
+        } else {
+          document.addEventListener('plusready', setPageStatusBarBackground, false);
+        }
+      </script>
   </body>
 </html>

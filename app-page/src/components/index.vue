@@ -87,7 +87,6 @@ export default {
             twoLi: {},
             listArrary: [],
             page: 1,
-            count: 20
         };
     },
     created() {
@@ -134,6 +133,7 @@ export default {
                 //1.2.1监听下拉
                 if (post.y > 50) {
                     Indicator.open("正在刷新...");
+                    _vm.page = 1;
                     _vm.oneLi = {};
                     _vm.twoLi = {};
                     _vm.listArrary = [];
