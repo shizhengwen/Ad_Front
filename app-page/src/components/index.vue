@@ -13,16 +13,16 @@
                                 <a :href="oneLi.url" v-text="oneLi.title"></a>
                                 <p v-text="oneLi.source"></p>
                             </div>
-                            <a class="right" :href="oneLi.url"><img :src="oneLi.head_img|imgurl(oneLi.head_img)" /></a>
+                            <a class="right" :href="oneLi.url"><img :src="oneLi.head_img" /></a>
                             <span class="line"></span>
                         </div>
                     </div>
                     <div class="list-two">
                         <h4>
-                            <a href="#" v-text="twoLi.title"></a>
+                            <a :href="twoLi.url" v-text="twoLi.title"></a>
                         </h4>
                         <div class="content">
-                            <a :href="twoLi.url"><img :src="twoLi.head_img|imgurl(twoLi.head_img)" alt="" /></a>
+                            <a :href="twoLi.url"><img :src="twoLi.head_img" alt="" /></a>
                         </div>
                         <p v-text="twoLi.source"></p>
                     </div>
@@ -33,13 +33,13 @@
                         </h4>
                         <div class="list-items">
                             <div class="item">
-                                <a :href="item.url"><img :src="item.head_img|imgurl(item.head_img)" /></a>
+                                <a :href="item.url"><img :src="item.head_img" /></a>
                             </div>
                             <div class="item">
-                                <a :href="item.url"><img :src="item.head_img2|imgurl(item.head_img2)" /></a>
+                                <a :href="item.url"><img :src="item.head_img2" /></a>
                             </div>
                             <div class="item">
-                                <a :href="item.url"><img :src="item.head_img3|imgurl(item.head_img3)" /></a>
+                                <a :href="item.url"><img :src="item.head_img3" /></a>
                             </div>
                         </div>
                         <p v-text="item.source"></p>
@@ -87,45 +87,36 @@ export default {
             listArrary: []
         };
     },
-    filters: {
-        imgurl(urls) {
-            if (urls) {
-                var newUrl = urls.substr(urls.indexOf("img/"));
-                newUrl = "http://47.52.157.58:8080/static/article/" + newUrl;
-                return newUrl;
-            } else {
-                return (urls = "../../static/img/toimg.png");
-            }
-        }
-    },
     created() {
         this.getJoins();
     },
     methods: {
         getJoins() {
+            var _vm = this;
             axios
-                .get("/information/all/").then(res => {
+                .get("/information/all/").then(function(res){
                     if( res.status == 200 ){
                         var allList = res.data.date;
-                        setTimeout(()=>{
+                        setTimeout(function(){
                             Indicator.close();
                         },1000)
                         if (allList.length > 0) {
-                            this.oneLi = allList[0];
+                            _vm.oneLi = allList[0];
                         }
                         if (allList.length > 1) {
-                            this.twoLi = allList[1];
+                            _vm.twoLi = allList[1];
                         }
                         if (allList.length > 3) {
-                            this.listArrary = allList.splice(2);
+                            _vm.listArrary = allList.splice(2);
                         }
                     }
                 })
-                .catch(error => {
+                .catch(function(error){
                     console.log("数据请求失败" + error);
                 });
         },
         _initBScroll() {
+            var _vm = this;
             //1.1初始化
             this.listScroll = new BScroll(".recommend-container", {
                 scrollY: true,
@@ -133,23 +124,23 @@ export default {
                 click: true
             });
             //1.2监听列表滚动
-            this.listScroll.on("touchEnd", post => {
+            this.listScroll.on("touchEnd",function(post){
                 //1.2.1监听下拉
                 if (post.y > 50) {
                     Indicator.open("正在刷新...");
-                    this.oneLi = {};
-                    this.twoLi = {};
-                    this.listArrary = [];
-                    this.getJoins();
+                    _vm.oneLi = {};
+                    _vm.twoLi = {};
+                    _vm.listArrary = [];
+                    _vm.getJoins();
                 }
                 //1.2.2监听上拉
-                if (this.listScroll.maxScrollY > post.y + 20) {
+                if (_vm.listScroll.maxScrollY > post.y + 20) {
                     console.log("上拉加载");
                 }
             });
             //1.3列表结束滚动
-            this.listScroll.on("scrollEnd", () => {
-                this.listScroll.refresh();
+            this.listScroll.on("scrollEnd", function(){
+                _vm.listScroll.refresh();
             });
         }
     },
